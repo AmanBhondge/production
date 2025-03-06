@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import { PORT } from './config/env.js';
 
@@ -13,6 +14,7 @@ import arcjetMiddleware from './middlewares/arcjet.middleware.js'
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

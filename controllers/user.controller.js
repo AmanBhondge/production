@@ -25,7 +25,7 @@ export const signUp = async (req, res, next) => {
 
         const newUser = await User.create([{ email, password: hashedPassword }], { session });
 
-        const token = jwt.sign({ id: newUser[0]._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        jwt.sign({ id: newUser[0]._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
         await session.commitTransaction();
         session.endSession();
@@ -36,7 +36,6 @@ export const signUp = async (req, res, next) => {
             success: true,
             message: "User created successfully",
             data: {
-                token,
                 user: userWithoutPassword
             }
         });
@@ -52,7 +51,7 @@ export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email }).select("+password");
+        const user = await User.findOne({ email });
 
         if (!user) {
             const error = new Error("User not found");
