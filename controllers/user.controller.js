@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import process from "process";
 
 import User from "../models/user.model.js";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
 
 export const signUp = async (req, res, next) => {
-
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -27,7 +25,7 @@ export const signUp = async (req, res, next) => {
 
         const newUsers = await User.create([{ email, password: hashedPassword }], { session });
 
-        jwt.sign({ id: newUsers[0]._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+        jwt.sign({ id: newUsers[0]._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
         await session.commitTransaction();
         session.endSession();
@@ -36,21 +34,21 @@ export const signUp = async (req, res, next) => {
             success: true,
             message: 'User created successfully',
             data: {
-                user: newUsers[0],
+                user: newUsers[0]
             }
-        })
+        });
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
         next(error);
     }
-}
+};
 
 export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
             const error = new Error('User not found');
@@ -73,10 +71,10 @@ export const signIn = async (req, res, next) => {
             message: 'User signed in successfully',
             data: {
                 token,
-                user,
+                user
             }
         });
     } catch (error) {
         next(error);
     }
-}
+};
