@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import User from '../models/user.model.js';
@@ -12,7 +12,6 @@ export const signUp = async (req, res, next) => {
   try {
     const { email, password } = req.body; 
 
-    // Check if a user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -21,7 +20,6 @@ export const signUp = async (req, res, next) => {
       throw error;
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -32,7 +30,6 @@ export const signUp = async (req, res, next) => {
     await session.commitTransaction();
     session.endSession();
 
-    // Fetch user without password
     const userWithoutPassword = await User.findById(newUsers[0]._id).select('-password');
 
     res.status(201).json({
@@ -54,7 +51,6 @@ export const signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Select password explicitly for comparison
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -73,7 +69,6 @@ export const signIn = async (req, res, next) => {
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
-    // Fetch user without password
     const userWithoutPassword = await User.findById(user._id).select('-password');
 
     res.status(200).json({
