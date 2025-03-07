@@ -21,9 +21,10 @@ app.use(cookieParser());
 app.use(arcjetMiddleware);
 
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/users-detals', userdetailsRouter);
+app.use('/api/v1/users-details', userdetailsRouter);
 
 app.use(errorMiddleware);
+
 
 
 app.listen(PORT, async () => {
